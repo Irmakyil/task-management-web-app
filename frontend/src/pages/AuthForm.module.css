@@ -1,28 +1,74 @@
 /* src/pages/AuthForm.module.css */
 
 .authContainer {
-  /* Bu div'in tüm ekranı kaplamasını ve içindekileri ortalamasını sağla */
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* --- GÜNCELLENDİ --- */
+.coverSide {
+  /* Sol tarafı %60 genişlikte yapar (3 parça) */
+  flex: 3;
+  
+  /* Arka plan resmi kaldırıldı, yerine gri renk eklendi */
+  background-color: #e2e8f0; /* Açık bir gri tonu */
+  
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  padding: 20px; /* Kenarlardan biraz boşluk */
+  
+  /* Arka plan açık renk olduğu için yazı rengi koyu yapıldı */
+  color: #2d3748; /* Koyu gri/mavi tonu */
+  
+  padding: 2rem;
+  text-align: center;
 }
 
-.authForm {
-  /* Bu, içindeki beyaz kutu */
-  background: #ffffff;
+/* --- GÜNCELLENDİ --- */
+.coverContent {
+  /* Şeffaf siyah arka plan kaldırıldı */
   padding: 2rem;
+  border-radius: 10px;
+}
+
+.coverContent h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.coverContent p {
+  font-size: 1.1rem;
+}
+
+/* --- GÜNCELLENDİ --- */
+.formSide {
+  /* Sağ tarafı %40 genişlikte yapar (2 parça) */
+  flex: 2;
+  
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f7fafc; /* Form tarafının arka planı */
+  padding: 2rem;
+}
+
+/* Formun beyaz kutusu */
+.authForm {
+  background: #ffffff;
+  padding: 2.5rem;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   width: 100%;
-  max-width: 400px;
+  max-width: 420px;
 }
 
 .authForm h2 {
   text-align: center;
   margin-bottom: 1.5rem;
   color: #333;
+  font-size: 1.8rem;
 }
 
 .formGroup {
@@ -55,6 +101,7 @@
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s;
+  margin-top: 1rem;
 }
 
 .submitButton:hover {
@@ -62,7 +109,7 @@
 }
 
 .switchLink {
-  margin-top: 1rem;
+  margin-top: 1.5rem;
   text-align: center;
   font-size: 0.9rem;
 }

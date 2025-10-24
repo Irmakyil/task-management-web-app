@@ -9,12 +9,14 @@
 }
 
 body {
-  /* Sayfanın arka planını açık gri yap */
-  background-color: #f4f7f6;
+  /* Arka plan rengini buradan kaldırıyoruz, çünkü artık sütunlar kendi renklerini yönetiyor */
+  /* background-color: #f4f7f6; */
   color: #333;
 }
 
 #root {
-  /* Uygulamanın en az ekran yüksekliği kadar yer kaplamasını sağla */
   min-height: 100vh;
+  /* #root'un da dikey bir flex container olmasını sağlıyoruz ki içindeki .authContainer düzgün yayılsın */
+  display: flex;
+  flex-direction: column;
 }
