@@ -44,9 +44,6 @@ const RegisterPage = () => {
             <button className={`${styles.tab} ${styles.active}`}>Sign Up</button>
           </div>
 
-          <h2>Create Your Account</h2>
-          <p style={{ color: '#A0A0B8', marginBottom: '2rem' }}>Get started in seconds.</p>
-
           <form className={styles.form} onSubmit={handleSubmit}>
             {error && <p style={{ color: 'red' }}>{error}</p>}
             
@@ -92,6 +89,11 @@ const RegisterPage = () => {
             <button type="submit" className={styles.submitButton}>
               Sign Up
             </button>
+
+            <p className={styles.switchLink}>
+            Already have an account? <Link to="/login">Sign In</Link>
+            </p>
+            
           </form>
         </div>
       </div>

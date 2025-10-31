@@ -77,6 +77,11 @@ const LoginPage = () => {
             <button type="submit" className={styles.submitButton}>
               Sign In
             </button>
+
+            <p className={styles.switchLink}>
+            Don't have an account? <Link to="/register">Sign Up</Link>
+            </p>
+
           </form>
         </div>
       </div>
