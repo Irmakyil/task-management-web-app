@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate, Link } from 'react-router-dom';
 import styles from './Navbar.module.css';
 
 const Logo = () => (
@@ -29,9 +29,6 @@ const Navbar = () => {
           <NavLink to="/dashboard" className={({ isActive }) => `${styles.navLink} ${isActive ? styles.activeLink : ''}`}>
             Dashboard
           </NavLink>
-          <NavLink to="/tasks" className={({ isActive }) => `${styles.navLink} ${isActive ? styles.activeLink : ''}`}>
-            Tasks
-          </NavLink>
           <NavLink to="/analysis" className={({ isActive }) => `${styles.navLink} ${isActive ? styles.activeLink : ''}`}>
             Analysis
           </NavLink>
@@ -44,7 +41,10 @@ const Navbar = () => {
           />
           {isDropdownOpen && (
             <div className={styles.dropdownMenu}>
-              <button onClick={handleSignOut}>
+              <Link to="/profile" className={styles.dropdownButton}>
+                Profile
+              </Link>
+              <button onClick={handleSignOut} className={styles.dropdownButton}>
                 Sign Out
               </button>
             </div>
