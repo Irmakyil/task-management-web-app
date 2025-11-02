@@ -1,14 +1,11 @@
-// models/Task.js
-
 const mongoose = require('mongoose');
 
 const taskSchema = new mongoose.Schema(
   {
-    // Hangi kullanıcıya ait olduğunu belirtmek için
     user: {
-      type: mongoose.Schema.Types.ObjectId, // User modelinin ID'si
+      type: mongoose.Schema.Types.ObjectId, 
       required: true,
-      ref: 'User', // 'User' modeli ile ilişkilendir
+      ref: 'User', 
     },
     title: {
       type: String,
@@ -25,9 +22,8 @@ const taskSchema = new mongoose.Schema(
     status: {
       type: String,
       required: true,
-      // 'enum' sadece bu değerleri kabul eder
-      enum: ['Pending', 'In Progress', 'Completed'],
-      default: 'Pending', // Varsayılan değer
+      enum: ['Incomplete', 'In Progress', 'Completed'],
+      default: 'Incomplete', 
     },
     dueDate: {
       type: Date,

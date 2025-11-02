@@ -36,9 +36,9 @@ const StatisticsPage = () => {
       return completed ? completed.count : 0;
     });
     const pendingData = stats.map(s => {
-      const pending = s.statuses.find(status => status.status === 'Incomplete');
-      return pending ? pending.count : 0;
-    });
+        const pending = s.statuses.find(status => status.status === 'Incomplete');
+        return pending ? pending.count : 0;
+      });
     return {
       labels: categories,
       datasets: [

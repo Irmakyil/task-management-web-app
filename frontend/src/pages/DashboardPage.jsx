@@ -55,11 +55,20 @@ const DashboardPage = () => {
   const statuses = ['All', 'Incomplete', 'Completed'];
   const filteredTasks = useMemo(() => {
     return tasks.filter((task) => {
-      const statusMatch = statusFilter === 'All' || task.status === statusFilter;
-      const categoryMatch = categoryFilter === 'All' || task.category === categoryFilter;
+      // Durum (Status) Filtresi
+      const statusMatch =
+        statusFilter === 'All' ||
+        // 'Pending' 'Incomplete' olarak değiştirildi
+        (statusFilter === 'Incomplete' && task.status === 'Incomplete') ||
+        (statusFilter === 'Completed' && task.status === 'Completed');
+
+      // Kategori Filtresi
+      const categoryMatch =
+        categoryFilter === 'All' || task.category === categoryFilter;
+
       return statusMatch && categoryMatch;
     });
-  }, [tasks, statusFilter, categoryFilter]);
+}, [tasks, statusFilter, categoryFilter]);
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;

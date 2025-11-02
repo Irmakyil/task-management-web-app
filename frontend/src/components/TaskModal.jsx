@@ -8,7 +8,7 @@ const TaskModal = ({ onClose, taskToEdit, onTaskSaved }) => {
   const [category, setCategory] = useState('Job');
   const [dueDate, setDueDate] = useState('');
   const [dueTime, setDueTime] = useState('09:00'); 
-  const [status, setStatus] = useState('Pending');
+  const [status, setStatus] = useState('Incomplete');
   const [error, setError] = useState(null);
   
   useEffect(() => {
@@ -132,7 +132,7 @@ const TaskModal = ({ onClose, taskToEdit, onTaskSaved }) => {
                 type="checkbox"
                 checked={status === 'Completed'}
                 onChange={(e) =>
-                  setStatus(e.target.checked ? 'Completed' : 'Pending')
+                  setStatus(e.target.checked ? 'Completed' : 'Incomplete')
                 }
               />
               Mark as completed

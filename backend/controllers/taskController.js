@@ -1,16 +1,16 @@
 const asyncHandler = require('express-async-handler');
-const Task = require('../models/Task'); // Task modelimizi import ediyoruz
+const Task = require('../models/Task'); 
 const mongoose = require('mongoose');
 
-// @desc    Kullanıcının tüm görevlerini listele
+// @desc    List all of the user's tasks
 // @route   GET /api/tasks
-// @access  Private (Giriş Gerekli)
+// @access  Private (Login Required)
 const getTasks = asyncHandler(async (req, res) => {
   const tasks = await Task.find({ user: req.user._id });
   res.json(tasks);
 });
 
-// @desc    Yeni bir görev oluştur
+// @desc    Create a new task
 // @route   POST /api/tasks
 // @access  Private
 const createTask = asyncHandler(async (req, res) => {
@@ -32,23 +32,23 @@ const createTask = asyncHandler(async (req, res) => {
   });
 
   const createdTask = await task.save();
-  res.status(201).json(createdTask); 
-});
+  res.status(201).json(createdTask);
+}); // <-- EKSİK OLAN PARANTEZ BURAYA EKLENDİ
 
-// @desc    Bir görevi güncelle
+// @desc    Update a task
 // @route   PUT /api/tasks/:id
 // @access  Private
 const updateTask = asyncHandler(async (req, res) => {
   const task = await Task.findById(req.params.id);
 
   if (!task) {
-    res.status(404); 
+    res.status(404); // 404 Not Found
     throw new Error('Task not found');
   }
 
-  // Güvenlik: Görev, bu kullanıcıya mı ait?
+  // Security: Does this task belong to this user?
   if (task.user.toString() !== req.user._id.toString()) {
-    res.status(401); 
+    res.status(401); // 401 Unauthorized
     throw new Error('You are not authorized to update this task');
   }
 
@@ -63,7 +63,7 @@ const updateTask = asyncHandler(async (req, res) => {
   res.json(updatedTask);
 });
 
-// @desc    Bir görevi sil
+// @desc    Delete a task
 // @route   DELETE /api/tasks/:id
 // @access  Private
 const deleteTask = asyncHandler(async (req, res) => {
@@ -79,14 +79,14 @@ const deleteTask = asyncHandler(async (req, res) => {
     throw new Error('You are not authorized to delete this task');
   }
 
-  await task.deleteOne(); 
+  await task.deleteOne(); // Delete the task
   res.json({ message: 'Task successfully deleted' });
 });
 
-// @desc    Kullanıcının görev istatistiklerini al
+// @desc    Get user's task statistics
 // @route   GET /api/tasks/stats
 // @access  Private
-const getTaskStats = asyncHandler(async (req, res) => {l
+const getTaskStats = asyncHandler(async (req, res) => {
   const matchStage = {
     $match: { user: new mongoose.Types.ObjectId(req.user._id) },
   };
@@ -101,6 +101,8 @@ const getTaskStats = asyncHandler(async (req, res) => {l
     },
   };
 
+  // 3. Group the output again by category
+  //    and push the status/count info into an array
   const groupStage2 = {
     $group: {
       _id: '$_id.category', 
@@ -114,6 +116,7 @@ const getTaskStats = asyncHandler(async (req, res) => {l
     },
   };
 
+  // 4. Rename the output field to "category"
   const projectStage = {
     $project: {
       _id: 0, 
@@ -123,6 +126,7 @@ const getTaskStats = asyncHandler(async (req, res) => {l
     },
   };
 
+  // 5. Run the Aggregation Pipeline
   const stats = await Task.aggregate([
     matchStage,
     groupStage1,
@@ -145,3 +149,5 @@ module.exports = {
   deleteTask,
   getTaskStats,
 };
+
+
