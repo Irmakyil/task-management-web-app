@@ -1,15 +1,19 @@
+/* --- Başlık Alanı --- */
 .tasksHeader {
-  display: flex; 
+  display: flex;
   justify-content: space-between;
-  align-items: center; 
+  align-items: flex-start; /* Butonun margin-top'u için 'center' yerine 'flex-start' */
   margin-bottom: 2rem;
 }
+
 .tasksHeader h1 {
   font-size: 2.25rem;
   font-weight: 700;
   color: #F0F0FF;
+  margin: 0; /* Tarayıcının varsayılan h1 boşluğunu kaldırır */
 }
 
+/* "Create New Task" butonu */
 .addButton {
   background-color: #5A80FF;
   color: white;
@@ -22,40 +26,103 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  
+  /* Başlıktan 20px daha aşağıda durmasını sağlar */
+  margin-top: 20px; 
 }
 
+
+/* --- Filtre Alanı (Dropdown Stilleri) --- */
 .filterContainer {
   display: flex;
-  flex-direction: column;
-  gap: 1rem;
+  flex-direction: row; /* Yan yana */
+  gap: 1.5rem; /* İki dropdown arası boşluk */
   margin-bottom: 2rem;
 }
-.filterGroup {
+
+/* Label ve Select'i kapsayan wrapper */
+.filterWrapper {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
+  flex-direction: column;
+  gap: 0.5rem; /* Label ile dropdown arası boşluk */
 }
-.filterButton {
-  background-color: #1B1B2F;
+
+.filterWrapper label {
+  font-size: 0.9rem;
   color: #A0A0B8;
-  border: none;
+  font-weight: 500;
+  padding-left: 0.25rem;
+}
+
+/* Dropdown (select) kutusu */
+.filterSelect {
+  background-color: #1B1B2F; /* Koyu arkaplan */
+  color: #F0F0FF; /* Açık renk yazı */
+  border: 1px solid #3A3A5C;
   padding: 0.6rem 1.1rem;
   border-radius: 8px;
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
-}
-.filterButton:hover {
-  background-color: #2A2A4A;
-  color: #F0F0FF;
-}
-.filterButton.activeFilter {
-  background-color: #5A80FF;
-  color: #FFFFFF;
+  min-width: 150px;
+  
+  /* Renk geçişi için eklendi */
+  transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
+.filterSelect:hover {
+  background-color: #2A2A4A;
+  border-color: #5A80FF;
+}
+
+.filterSelect:focus {
+  outline: none;
+  border-color: #5A80FF;
+}
+
+.filterSelect option {
+  background-color: #1B1B2F;
+  color: #F0F0FF;
+}
+
+/* --- Dinamik Renkli Kategori Filtresi --- */
+
+/* "All" (Tümü) seçiliyken varsayılan koyu renkte kal */
+.filterSelect[data-category="All"] {
+  background-color: #1B1B2F;
+  color: #F0F0FF;
+}
+
+/* TaskModal'daki renklerle aynı */
+.filterSelect[data-category="Job"] {
+  background-color: #5A80FF;
+  border-color: #5A80FF;
+  color: white;
+}
+
+.filterSelect[data-category="Personal"] {
+  background-color: #A076F9;
+  border-color: #A076F9;
+  color: white;
+}
+
+.filterSelect[data-category="Hobby"] {
+  background-color: #FF9F40;
+  border-color: #FF9F40;
+  color: white;
+}
+
+.filterSelect[data-category="Other"] {
+  background-color: #577590;
+  border-color: #577590;
+  color: white;
+}
+
+
+/* --- Görev Izgarası --- */
 .taskList {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1.5rem;
 }
+

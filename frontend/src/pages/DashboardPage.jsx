@@ -13,7 +13,9 @@ const DashboardPage = () => {
   const [categoryFilter, setCategoryFilter] = useState('All');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [taskToEdit, setTaskToEdit] = useState(null);
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
+
+  // (Navbar ile ilgili tüm state'ler ve fonksiyonlar SİLİNDİ)
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -46,57 +48,99 @@ const DashboardPage = () => {
     }
   };
   
+  const handleToggleTaskStatus = async (taskToToggle) => {
+    const originalTasks = [...tasks];
+    const newStatus = taskToToggle.status === 'Completed' ? 'Incomplete' : 'Completed';
+    setTasks(prevTasks => 
+      prevTasks.map(task => 
+        task._id === taskToToggle._id ? { ...task, status: newStatus } : task
+      )
+    );
+    try {
+      const token = localStorage.getItem('token');
+      const config = { headers: { Authorization: `Bearer ${token}` } };
+      await axios.put(
+        `http://localhost:5000/api/tasks/${taskToToggle._id}`,
+        { status: newStatus },
+        config
+      );
+    } catch (err) {
+      setError('Could not update task status. Please try again.');
+      setTasks(originalTasks);
+    }
+  };
+
   const handleOpenModal = () => { setIsModalOpen(true); setTaskToEdit(null); };
   const handleOpenEditModal = (task) => { setIsModalOpen(true); setTaskToEdit(task); };
   const handleCloseModal = () => { setIsModalOpen(false); setTaskToEdit(null); };
   const handleTaskSaved = () => { fetchTasks(); };
 
   const categories = ['All', 'Job', 'Personal', 'Hobby', 'Other'];
-  const statuses = ['All', 'Incomplete', 'Completed'];
+  const statuses = ['All', 'Incomplete', 'Completed']; // "Pending" -> "Incomplete"
+
   const filteredTasks = useMemo(() => {
     return tasks.filter((task) => {
-      // Durum (Status) Filtresi
-      const statusMatch =
-        statusFilter === 'All' ||
-        // 'Pending' 'Incomplete' olarak değiştirildi
-        (statusFilter === 'Incomplete' && task.status === 'Incomplete') ||
-        (statusFilter === 'Completed' && task.status === 'Completed');
-
-      // Kategori Filtresi
-      const categoryMatch =
-        categoryFilter === 'All' || task.category === categoryFilter;
-
+      // "Pending" -> "Incomplete"
+      const statusMatch = statusFilter === 'All' || task.status === statusFilter;
+      const categoryMatch = categoryFilter === 'All' || task.category === categoryFilter;
       return statusMatch && categoryMatch;
     });
-}, [tasks, statusFilter, categoryFilter]);
+  }, [tasks, statusFilter, categoryFilter]);
 
   if (loading) return <div>Loading...</div>;
-  if (error) return <div>{error}</div>;
 
   return (
+    // Navbar veya Header HTML'i burada YOK
     <>
       <div className={styles.tasksHeader}>
         <h1>Tasks</h1>
+        {error && <p className={styles.pageError}>{error}</p>}
         <button className={styles.addButton} onClick={handleOpenModal}>
           + Create New Task
         </button>
       </div>
 
       <div className={styles.filterContainer}>
-        <div className={styles.filterGroup}>
-          {statuses.map((status) => (
-            <button key={status} className={`${styles.filterButton} ${statusFilter === status ? styles.activeFilter : ''}`} onClick={() => setStatusFilter(status)}>
-              {status}
-            </button>
-          ))}
+        
+        {/* Durum (Status) Dropdown'u (Değişiklik yok) */}
+        <div className={styles.filterWrapper}>
+          <label htmlFor="status-filter">Status</label>
+          <select
+            id="status-filter"
+            className={styles.filterSelect}
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+          >
+            {statuses.map((status) => (
+              <option key={status} value={status}>
+                {status}
+              </option>
+            ))}
+          </select>
         </div>
-        <div className={styles.filterGroup}>
-          {categories.map((category) => (
-            <button key={category} className={`${styles.filterButton} ${categoryFilter === category ? styles.activeFilter : ''}`} onClick={() => setCategoryFilter(category)}>
-              {category}
-            </button>
-          ))}
+
+        {/* Kategori (Category) Dropdown'u */}
+        <div className={styles.filterWrapper}>
+          <label htmlFor="category-filter">Category</label>
+          <select
+            id="category-filter"
+            className={styles.filterSelect}
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+            
+            // --- YENİ EKLENEN SATIR ---
+            // Seçili olan filtreye göre CSS'e data- attribute gönder
+            data-category={categoryFilter}
+            // --- BİTİŞ ---
+          >
+            {categories.map((category) => (
+              <option key={category} value={category}>
+                {category}
+              </option>
+            ))}
+          </select>
         </div>
+
       </div>
 
       <div className={styles.taskList}>
@@ -104,16 +148,27 @@ const DashboardPage = () => {
           <p>No tasks found for these filters.</p>
         ) : (
           filteredTasks.map((task) => (
-            <TaskItem key={task._id} task={task} onDelete={handleDeleteTask} onEdit={handleOpenEditModal} />
+            <TaskItem 
+              key={task._id} 
+              task={task} 
+              onDelete={handleDeleteTask} 
+              onEdit={handleOpenEditModal}
+              onToggleStatus={handleToggleTaskStatus}
+            />
           ))
         )}
       </div>
 
       {isModalOpen && (
-        <TaskModal onClose={handleCloseModal} taskToEdit={taskToEdit} onTaskSaved={handleTaskSaved} />
+        <TaskModal 
+          onClose={handleCloseModal} 
+          taskToEdit={taskToEdit} 
+          onTaskSaved={handleTaskSaved} 
+        />
       )}
     </>
   );
 };
 
 export default DashboardPage;
+

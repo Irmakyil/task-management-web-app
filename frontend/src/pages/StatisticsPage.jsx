@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import styles from './StatisticsPage.module.css';
@@ -29,21 +29,23 @@ const StatisticsPage = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
+  const chartRef = useRef(null);
+
   const processDataForChart = (stats) => {
     const categories = stats.map(s => s.category);
     const completedData = stats.map(s => {
       const completed = s.statuses.find(status => status.status === 'Completed');
       return completed ? completed.count : 0;
     });
-    const pendingData = stats.map(s => {
-        const pending = s.statuses.find(status => status.status === 'Incomplete');
-        return pending ? pending.count : 0;
-      });
+    const incompleteData = stats.map(s => {
+      const incomplete = s.statuses.find(status => status.status === 'Incomplete');
+      return incomplete ? incomplete.count : 0;
+    });
     return {
       labels: categories,
       datasets: [
         { label: 'Completed', data: completedData, backgroundColor: '#3DCC91' },
-        { label: 'Incomplete', data: pendingData, backgroundColor: '#FF9F40' },
+        { label: 'Incomplete', data: incompleteData, backgroundColor: '#FF9F40' },
       ],
     };
   };
@@ -67,7 +69,21 @@ const StatisticsPage = () => {
     };
     fetchStats();
   }, [navigate]);
-  
+
+  const handleExportAsPNG = () => {
+    if (!chartRef.current) {
+      console.error("Chart reference is not available.");
+      return;
+    }
+    
+    const base64Image = chartRef.current.toBase64Image('image/png');
+    
+    const link = document.createElement('a');
+    link.href = base64Image;
+    link.download = 'task-analysis-chart.png'; 
+    link.click(); 
+  };
+
   const options = {
     responsive: true,
     plugins: {
@@ -85,10 +101,16 @@ const StatisticsPage = () => {
 
   return (
     <>
-      <h1>Task Analysis</h1>
+      <div className={styles.pageHeader}>
+        <h1>Task Analysis</h1>
+        <button className={styles.exportButton} onClick={handleExportAsPNG}>
+          Export Graph 
+        </button>
+      </div>
+
       <div className={styles.chartContainer}>
         {chartData && chartData.labels.length > 0 ? (
-          <Bar options={options} data={chartData} />
+          <Bar ref={chartRef} options={options} data={chartData} />
         ) : (
           <p>No statistics found. Add some tasks first.</p>
         )}

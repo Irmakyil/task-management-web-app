@@ -2,25 +2,36 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import styles from './TaskModal.module.css';
 
+// Bu, geçmiş tarih/saat seçilmesini engelleyen yardımcı fonksiyondur
+const getMinDateTime = () => {
+  const now = new Date();
+  // Saat dilimi (timezone) farkını hesaba kat
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  // ISO formatına çevir (YYYY-MM-DDTHH:MM)
+  return now.toISOString().slice(0, 16);
+};
+
 const TaskModal = ({ onClose, taskToEdit, onTaskSaved }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('Job');
   const [dueDate, setDueDate] = useState('');
-  const [dueTime, setDueTime] = useState('09:00'); 
-  const [status, setStatus] = useState('Incomplete');
+  const [dueTime, setDueTime] = useState('09:00');
   const [error, setError] = useState(null);
-  
+
+  // (isDateInputFocused state'i artık gerekli değil, 
+  //  tarayıcı dilini İngilizce yaptığınız için placeholder düzeldi)
+
   useEffect(() => {
     if (taskToEdit) {
       setTitle(taskToEdit.title);
       setDescription(taskToEdit.description || '');
       setCategory(taskToEdit.category);
-      setStatus(taskToEdit.status);
+      // (status state'i kaldırıldı)
       if (taskToEdit.dueDate) {
         setDueDate(new Date(taskToEdit.dueDate).toISOString().split('T')[0]);
       }
-      if (taskToEdit.dueTime) { 
+      if (taskToEdit.dueTime) {
         setDueTime(taskToEdit.dueTime);
       }
     }
@@ -30,6 +41,32 @@ const TaskModal = ({ onClose, taskToEdit, onTaskSaved }) => {
     e.preventDefault();
     setError(null);
 
+    // 1. Geçmiş tarih kontrolü
+    const selectedDateTime = new Date(`${dueDate}T${dueTime}`);
+    const now = new Date();
+
+    if (dueDate && selectedDateTime < now) {
+      setError('Deadline cannot be in the past.');
+      return;
+    }
+
+    // --- HATA DÜZELTMESİ BURADA ---
+    // 2. Gönderilecek 'status'ü belirle
+    // Eğer düzenleme modundaysak (taskToEdit varsa), mevcut statüyü koru.
+    // Eğer yeni görev oluşturuyorsak (taskToEdit null ise), 'Incomplete' olarak ayarla.
+    const taskStatus = taskToEdit ? taskToEdit.status : 'Incomplete';
+
+    // 3. 'status'ü taskData objesine ekle
+    const taskData = { 
+      title, 
+      description, 
+      category, 
+      dueDate, 
+      dueTime, 
+      status: taskStatus // <-- EKSİK ALAN BURAYA EKLENDİ
+    };
+    // --- DÜZELTME BİTTİ ---
+
     const token = localStorage.getItem('token');
     const config = {
       headers: {
@@ -38,22 +75,23 @@ const TaskModal = ({ onClose, taskToEdit, onTaskSaved }) => {
       },
     };
 
-    const taskData = { title, description, category, status, dueDate, dueTime };
-
     try {
       if (taskToEdit) {
+        // Düzenleme (PUT)
         await axios.put(
           `http://localhost:5000/api/tasks/${taskToEdit._id}`,
           taskData,
           config
         );
       } else {
+        // Yeni Görev (POST)
         await axios.post('http://localhost:5000/api/tasks', taskData, config);
       }
-      onTaskSaved();
-      onClose();
+      onTaskSaved(); // Listeyi yenile
+      onClose(); // Modalı kapat
     } catch (err) {
-      setError('Could not save the task.');
+      // Backend'den gelen asıl hatayı göster (daha bilgilendirici)
+      setError(err.response?.data?.message || 'Could not save the task.');
       console.error(err);
     }
   };
@@ -99,9 +137,10 @@ const TaskModal = ({ onClose, taskToEdit, onTaskSaved }) => {
                   value={dueDate}
                   onChange={(e) => setDueDate(e.target.value)}
                   className={styles.dateInput}
+                  min={getMinDateTime().split('T')[0]} // Geçmiş tarihleri engelle
                 />
                 <input
-                  type="time" 
+                  type="time"
                   id="dueTime"
                   value={dueTime}
                   onChange={(e) => setDueTime(e.target.value)}
@@ -126,18 +165,7 @@ const TaskModal = ({ onClose, taskToEdit, onTaskSaved }) => {
             </div>
           </div>
 
-          <div className={styles.formGroup}>
-            <label className={styles.checkboxLabel}>
-              <input
-                type="checkbox"
-                checked={status === 'Completed'}
-                onChange={(e) =>
-                  setStatus(e.target.checked ? 'Completed' : 'Incomplete')
-                }
-              />
-              Mark as completed
-            </label>
-          </div>
+          {/* "Mark as completed" checkbox'ı buradan kaldırıldı */}
 
           <div className={styles.formActions}>
             <button type="button" className={styles.cancelButton} onClick={onClose}>
@@ -154,3 +182,4 @@ const TaskModal = ({ onClose, taskToEdit, onTaskSaved }) => {
 };
 
 export default TaskModal;
+

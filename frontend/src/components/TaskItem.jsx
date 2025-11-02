@@ -10,22 +10,36 @@ import {
   FaClock
 } from 'react-icons/fa';
 
+// --- DÜZELTİLDİ: "Invalid Date" hatasını çözen fonksiyon ---
 const formatDisplayDate = (dateString) => {
-  if (!dateString) return null;
-  const date = new Date(dateString); 
-  
-  const today = new Date();
-  const tomorrow = new Date(today);
-  tomorrow.setDate(tomorrow.getDate() + 1);
+  if (!dateString) return null;
+  // MongoDB'den gelen ISO 8601 formatındaki tarihi doğrudan işle
+  const date = new Date(dateString); 
+  
+  // new Date() başarısız olursa (örn: "Invalid Date")
+  if (isNaN(date.getTime())) {
+    console.error("Invalid date value received:", dateString);
+    return "Invalid Date";
+  }
+  
+  const today = new Date();
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
 
-  if (date.toDateString() === today.toDateString()) return 'Today';
-  if (date.toDateString() === tomorrow.toDateString()) return 'Tomorrow';
+  // Saati sıfırlayarak sadece gün bazlı karşılaştırma yap
+  today.setHours(0, 0, 0, 0);
+  tomorrow.setHours(0, 0, 0, 0);
+  date.setHours(0, 0, 0, 0);
 
-  return date.toLocaleDateString('en-US', { day: 'numeric', month: 'long' });
+  if (date.getTime() === today.getTime()) return 'Today';
+  if (date.getTime() === tomorrow.getTime()) return 'Tomorrow';
+
+  return date.toLocaleDateString('en-US', { day: 'numeric', month: 'long' });
 };
 
-const TaskItem = ({ task, onDelete, onEdit }) => {
+const TaskItem = ({ task, onDelete, onEdit, onToggleStatus }) => {
   
+  // 1. KATEGORİ KENARLIK SINIFI
   const getCategoryBorderClass = (category) => {
     switch (category.toLowerCase()) {
       case 'job': return styles.borderJob;
@@ -36,6 +50,7 @@ const TaskItem = ({ task, onDelete, onEdit }) => {
     }
   };
   
+  // 2. KATEGORİ ETİKET (TAG) SINIFI
   const getCategoryTagClass = (category) => {
     switch (category.toLowerCase()) {
       case 'job': return styles.tagJob;
@@ -46,81 +61,48 @@ const TaskItem = ({ task, onDelete, onEdit }) => {
     }
   };
 
-  const getDeadlineInfo = () => {
-    if (task.status === 'Completed') {
-      return { isUrgent: false, isCompleted: true, element: null };
-    }
-    if (!task.dueDate) {
-      return { isUrgent: false, isCompleted: false, element: null };
-    }
-    
-    /* bu kısım tekrar değerlendirilecek */
+  // 3. SON TARİH / UYARI BİLGİSİ
+  let isUrgent = false;
+  let urgentMessage = null;
+  if (task.status !== 'Completed' && task.dueDate) {
     const dueDateTimeString = `${task.dueDate.split('T')[0]}T${task.dueTime || '00:00:00'}`;
     const dueDate = new Date(dueDateTimeString);
     const now = new Date();
     const hoursRemaining = (dueDate.getTime() - now.getTime()) / (1000 * 60 * 60);
 
     if (hoursRemaining < 0) {
-      return {
-        isUrgent: true, isCompleted: false,
-        element: (
-          <span className={`${styles.dateTime} ${styles.urgentText}`}>
-            <FaExclamationTriangle /> Overdue
-          </span>
-        ),
-      };
+      isUrgent = true;
+      urgentMessage = "Overdue";
+    } else if (hoursRemaining <= 24) {
+      isUrgent = true;
+      urgentMessage = `Last ${Math.ceil(hoursRemaining)} hour!`;
     }
-    if (hoursRemaining <= 24) {
-      return {
-        isUrgent: true, isCompleted: false,
-        element: (
-          <span className={`${styles.dateTime} ${styles.urgentText}`}>
-            <FaExclamationTriangle /> Last {Math.ceil(hoursRemaining)} hour!
-          </span>
-        ),
-      };
-    }
-    return {
-      isUrgent: false, isCompleted: false,
-      element: (
-        <>
-          <span className={styles.dateTime}>
-            <FaCalendarAlt /> {formatDisplayDate(task.dueDate)}
-          </span>
-          {task.dueTime && (
-            <span className={styles.dateTime}>
-              <FaClock /> {task.dueTime}
-            </span>
-          )}
-        </>
-      ),
-    };
-  };
-
-  const deadlineInfo = getDeadlineInfo();
-
-  // 4. KART SINIFLARINI AYARLA (Kenarlık Rengi)
-  const cardClasses = [styles.taskCard];
-  if (deadlineInfo.isCompleted) {
-    cardClasses.push(styles.borderCompleted); // YEŞİL
-  } else if (deadlineInfo.isUrgent) {
-    cardClasses.push(styles.borderUrgent); // KIRMIZI
-  } else {
-    cardClasses.push(getCategoryBorderClass(task.category)); 
   }
 
+  // 4. KART SINIFLARINI AYARLA (Kenarlık Rengi)
+  // --- DÜZELTİLDİ: Hatalı fonksiyon çağrısını düzelttik ---
+  const cardClasses = [
+    styles.taskCard,
+    task.status === 'Completed' ? styles.borderCompleted : (isUrgent ? styles.borderUrgent : getCategoryBorderClass(task.category))
+  ];
+
+  // --- İKON TIKLAMALARINI YÖNETME ---
   const handleEdit = (e) => {
     e.stopPropagation(); 
     onEdit(task);
   };
-
   const handleDelete = (e) => {
     e.stopPropagation();
     onDelete(task._id);
   };
+  const handleToggle = (e) => {
+    e.stopPropagation();
+    onToggleStatus(task);
+  };
   
   return (
     <div className={cardClasses.join(' ')} onClick={handleEdit}>
+      
       <div className={styles.cardHeader}>
         <h3>{task.title}</h3>
         <div className={styles.actions}>
@@ -134,22 +116,45 @@ const TaskItem = ({ task, onDelete, onEdit }) => {
       </div>
 
       <div className={styles.cardMiddle}>
-        {deadlineInfo.element}
+        {task.dueDate ? (
+          <>
+            <span className={styles.dateTime}>
+              <FaCalendarAlt /> {formatDisplayDate(task.dueDate)}
+            </span>
+            {task.dueTime && (
+              <span className={styles.dateTime}>
+                <FaClock /> {task.dueTime}
+              </span>
+            )}
+          </>
+        ) : (
+          <span className={styles.dateTime}>&nbsp;</span>
+        )}
       </div>
 
       <div className={styles.cardFooter}>
-        <span className={`${styles.categoryTag} ${getCategoryTagClass(task.category)}`}>
-          {task.category}
-        </span>
+        <div className={styles.footerLeft}>
+          <span className={`${styles.categoryTag} ${getCategoryTagClass(task.category)}`}>
+            {task.category}
+          </span>
+          {isUrgent && (
+            <span className={styles.urgentText}>
+              <FaExclamationTriangle /> {urgentMessage}
+            </span>
+          )}
+        </div>
         
-        {task.status === 'Completed' ? (
-          <FaCheckCircle className={styles.checkCompleted} />
-        ) : (
-          <FaRegCheckCircle className={styles.checkPending} />
-        )}
+        <button className={styles.checkButton} onClick={handleToggle}>
+          {task.status === 'Completed' ? (
+            <FaCheckCircle className={styles.checkCompleted} />
+          ) : (
+            <FaRegCheckCircle className={styles.checkPending} />
+          )}
+        </button>
       </div>
     </div>
   );
 };
 
 export default TaskItem;
+
