@@ -1,8 +1,8 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 
-import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
+// Sayfaları import et
+import AuthPage from './pages/AuthPage'; 
 import DashboardPage from './pages/DashboardPage';
 import StatisticsPage from './pages/StatisticsPage';
 import ProfilePage from './pages/ProfilePage';
@@ -11,10 +11,12 @@ import MainLayout from './components/MainLayout';
 function App() {
   return (
     <Routes>
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
-      <Route path="/" element={<LoginPage />} />
+      {/* Public (Navbar'sız) Rotalar */}
+      <Route path="/login" element={<AuthPage />} />
+      <Route path="/register" element={<AuthPage />} />
+      <Route path="/" element={<AuthPage />} />
 
+      {/* Protected (Navbar'lı) Rotalar */}
       <Route element={<MainLayout />}>
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/analysis" element={<StatisticsPage />} />

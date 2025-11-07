@@ -1,3 +1,64 @@
+/* KOYU MOD PALETİ */
+:root,
+[data-theme='dark'] {
+  /* Arkaplanlar */
+  --bg-navbar: #10221E;      /* Navbar (Primary Background) */
+  --bg-primary: #10221E;      /* Ana Arkaplan (Primary Background) */
+  --bg-secondary: #2B4C44;  /* Kartlar, Modallar (Secondary) */
+  --bg-tertiary: #2B4C44;   /* Inputlar, Hover (Secondary) */
+
+  /* Metinler */
+  --text-navbar: #E0FFEC;     /* Navbar Metni */
+  --text-primary: #E0FFEC;     /* Ana İçerik Metni */
+  --text-secondary: #A2C2B3; /* Soluk Metin, Labellar */
+  --text-placeholder: #A2C2B3; /* Placeholder */
+
+  /* Vurgu Rengi */
+  --accent: #7FB04A;         /* Ana Vurgu */
+  --accent-hover: #6c9a3f;     /* Vurgu Hover (Biraz Daha Koyu) */
+  --accent-text: #FFFFFF;      /* Vurgu Üstü Metin (Beyaz) */
+  /* Canlı Çim Yeşili RGB: 127, 176, 74 */
+  --accent-rgb: 127, 176, 74;
+
+  /* Kenarlıklar (Borders) */
+  --border-color: #577F70;
+  
+  /* Semantik Renkler */
+  --color-success: #3DCC91;
+  --color-warning: #EF4444;
+  --cat-job: #5A80FF;
+  --cat-personal: #A076F9;
+  --cat-hobby: #FF9F40;
+  --cat-other: #6B7280;
+}
+
+/* AÇIK MOD PALETİ  */
+[data-theme='light'] {
+  /* Arkaplanlar */
+  --bg-navbar: #FFFFFF;      /* Navbar (Primary Background) */
+  --bg-primary: #F5FCF7;      /* Ana Arkaplan (Primary Background) */
+  --bg-secondary: #FFFFFF;  /* Kartlar, Modallar (Secondary) */
+  --bg-tertiary: #FFFFFF;   /* Inputlar, Hover (Secondary) */
+
+  /* Metinler */
+  --text-primary: #2A3F3A;     /* Ana İçerik Metni */
+  --text-secondary: #6F8C82; /* Soluk Metin */
+  --text-placeholder: #6F8C82; /* Placeholder */
+  --text-navbar: #2A3F3A;     /* Navbar Metni */
+
+  /* Vurgu Rengi (Canlı Çim Yeşili) */
+  --accent: #7FB04A;
+  --accent-hover: #6c9a3f;
+  --accent-text: #FFFFFF; /* Beyaz metin */
+  --accent-rgb: 127, 176, 74;
+
+  /* Kenarlıklar (Borders) */
+  --border-color: #DDEEE5;
+  
+  /* Semantik renkler aynı kalır */
+}
+
+/* 2. Global CSS Reset ve Temel Uygulama */
 * {
   margin: 0;
   padding: 0;
@@ -6,10 +67,8 @@
 }
 
 body {
-  /* Koyu mod ana arka plan rengi */
-  /* Dashboard vb. için bunu Koyu Modun ana rengi yapıyoruz */
-  background-color: #0F0F1E; 
-  color: #F0F0FF; /* Varsayılan metin rengi */
+  color: var(--text-primary);
+  transition: background-color 0.2s, color 0.2s;
 }
 
 #root {

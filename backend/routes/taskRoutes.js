@@ -9,7 +9,7 @@ const {
   getTaskStats,
 } = require('../controllers/taskController');
 
-const { protect } = require('../middleware/authMiddleware'); // Koruma katmanımız
+const { protect } = require('../middleware/authMiddleware'); 
 
 // router.route() zincirleme yöntemi, aynı URL'ye giden
 // farklı metodları (GET, POST) tek seferde tanımlamamızı sağlar.

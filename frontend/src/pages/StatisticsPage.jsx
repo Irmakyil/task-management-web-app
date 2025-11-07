@@ -28,8 +28,22 @@ const StatisticsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-
   const chartRef = useRef(null);
+  
+  // --- YENİ EKLENDİ: Tema bazlı metin rengi state'i ---
+  const [chartTextColor, setChartTextColor] = useState('#F0F0FF'); // Varsayılan (koyu mod)
+
+  // --- YENİ EKLENDİ: Temayı kontrol eden useEffect ---
+  useEffect(() => {
+    // index.css'ten gelen renkleri oku
+    const lightModeColor = '#212529'; // Açık mod metin rengi (koyu gri)
+    const darkModeColor = '#F0F0FF';  // Koyu mod metin rengi (açık beyaz)
+
+    // O anki temayı localStorage'dan veya HTML etiketinden al
+    const currentTheme = localStorage.getItem('theme') || document.documentElement.getAttribute('data-theme') || 'dark';
+
+    setChartTextColor(currentTheme === 'light' ? lightModeColor : darkModeColor);
+  }, []); // Sayfa yüklendiğinde bir kez çalışır
 
   const processDataForChart = (stats) => {
     const categories = stats.map(s => s.category);
@@ -44,8 +58,9 @@ const StatisticsPage = () => {
     return {
       labels: categories,
       datasets: [
+        // DÜZELTME: Renkler sabit kodlu (Chart.js CSS değişkenlerini okuyamaz)
         { label: 'Completed', data: completedData, backgroundColor: '#3DCC91' },
-        { label: 'Incomplete', data: incompleteData, backgroundColor: '#FF9F40' },
+        { label: 'Incomplete', data: incompleteData, backgroundColor: '#FBBF24' },
       ],
     };
   };
@@ -71,30 +86,54 @@ const StatisticsPage = () => {
   }, [navigate]);
 
   const handleExportAsPNG = () => {
-    if (!chartRef.current) {
-      console.error("Chart reference is not available.");
-      return;
-    }
-    
+    if (!chartRef.current) { return; }
     const base64Image = chartRef.current.toBase64Image('image/png');
-    
     const link = document.createElement('a');
     link.href = base64Image;
-    link.download = 'task-analysis-chart.png'; 
-    link.click(); 
+    link.download = 'task-analysis-chart.png';
+    link.click();
   };
 
+  // --- GÜNCELLENMİŞ GRAFİK OPSİYONLARI ---
+  // Yazı renkleri artık dinamik 'chartTextColor' state'inden geliyor
   const options = {
     responsive: true,
     plugins: {
-      legend: { position: 'top', labels: { color: '#F0F0FF' } },
-      title: { display: true, text: 'Task Distribution by Category', color: '#F0F0FF', font: { size: 18 } },
+      legend: {
+        position: 'top',
+        labels: {
+          color: chartTextColor, // Dinamik renk
+        },
+      },
+      title: {
+        display: true,
+        text: 'Task Distribution by Category',
+        color: chartTextColor, // Dinamik renk
+        font: { size: 18 },
+      },
     },
     scales: {
-      x: { stacked: true, ticks: { color: '#A0A0B8' } },
-      y: { stacked: true, ticks: { color: '#A0A0B8' } },
+      x: {
+        stacked: true,
+        ticks: {
+          color: chartTextColor, // Dinamik renk
+        },
+        grid: {
+          color: 'rgba(160, 160, 184, 0.2)', // Kılavuz çizgileri (soluk)
+        },
+      },
+      y: {
+        stacked: true,
+        ticks: {
+          color: chartTextColor, // Dinamik renk
+        },
+        grid: {
+          color: 'rgba(160, 160, 184, 0.2)', // Kılavuz çizgileri (soluk)
+        },
+      },
     },
   };
+  // --- GÜNCELLEME BİTTİ ---
 
   if (loading) return <div>Loading Stats...</div>;
   if (error) return <div>{error}</div>;
@@ -104,10 +143,9 @@ const StatisticsPage = () => {
       <div className={styles.pageHeader}>
         <h1>Task Analysis</h1>
         <button className={styles.exportButton} onClick={handleExportAsPNG}>
-          Export Graph 
+          Export Graph
         </button>
       </div>
-
       <div className={styles.chartContainer}>
         {chartData && chartData.labels.length > 0 ? (
           <Bar ref={chartRef} options={options} data={chartData} />

@@ -15,7 +15,6 @@ const DashboardPage = () => {
   const [taskToEdit, setTaskToEdit] = useState(null);
   const navigate = useNavigate();
 
-  // (Navbar ile ilgili tüm state'ler ve fonksiyonlar SİLİNDİ)
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -38,7 +37,7 @@ const DashboardPage = () => {
   };
 
   const handleDeleteTask = async (taskId) => {
-    if (window.confirm('Are you sure?')) {
+    if (window.confirm('Are you sure you want to delete this task?')) {
       try {
         const token = localStorage.getItem('token');
         const config = { headers: { Authorization: `Bearer ${token}` } };
@@ -76,11 +75,10 @@ const DashboardPage = () => {
   const handleTaskSaved = () => { fetchTasks(); };
 
   const categories = ['All', 'Job', 'Personal', 'Hobby', 'Other'];
-  const statuses = ['All', 'Incomplete', 'Completed']; // "Pending" -> "Incomplete"
+  const statuses = ['All', 'Incomplete', 'Completed'];
 
   const filteredTasks = useMemo(() => {
     return tasks.filter((task) => {
-      // "Pending" -> "Incomplete"
       const statusMatch = statusFilter === 'All' || task.status === statusFilter;
       const categoryMatch = categoryFilter === 'All' || task.category === categoryFilter;
       return statusMatch && categoryMatch;
@@ -90,7 +88,6 @@ const DashboardPage = () => {
   if (loading) return <div>Loading...</div>;
 
   return (
-    // Navbar veya Header HTML'i burada YOK
     <>
       <div className={styles.tasksHeader}>
         <h1>Tasks</h1>
@@ -101,46 +98,40 @@ const DashboardPage = () => {
       </div>
 
       <div className={styles.filterContainer}>
-        
-        {/* Durum (Status) Dropdown'u (Değişiklik yok) */}
-        <div className={styles.filterWrapper}>
-          <label htmlFor="status-filter">Status</label>
-          <select
-            id="status-filter"
-            className={styles.filterSelect}
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-          >
-            {statuses.map((status) => (
-              <option key={status} value={status}>
-                {status}
-              </option>
-            ))}
-          </select>
+        <div className={styles.filterGroupWrapper}>
+          <div className={styles.filterWrapper}>
+            <label htmlFor="status-filter">Status</label>
+            <select
+              id="status-filter"
+              className={styles.filterSelect}
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              data-category={statusFilter === 'All' ? 'All' : 'Other'}
+            >
+              {statuses.map((status) => (
+                <option key={status} value={status}>
+                  {status}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className={styles.filterWrapper}>
+            <label htmlFor="category-filter">Category</label>
+            <select
+              id="category-filter"
+              className={styles.filterSelect}
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              data-category={categoryFilter}
+            >
+              {categories.map((category) => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
-
-        {/* Kategori (Category) Dropdown'u */}
-        <div className={styles.filterWrapper}>
-          <label htmlFor="category-filter">Category</label>
-          <select
-            id="category-filter"
-            className={styles.filterSelect}
-            value={categoryFilter}
-            onChange={(e) => setCategoryFilter(e.target.value)}
-            
-            // --- YENİ EKLENEN SATIR ---
-            // Seçili olan filtreye göre CSS'e data- attribute gönder
-            data-category={categoryFilter}
-            // --- BİTİŞ ---
-          >
-            {categories.map((category) => (
-              <option key={category} value={category}>
-                {category}
-              </option>
-            ))}
-          </select>
-        </div>
-
       </div>
 
       <div className={styles.taskList}>
@@ -171,4 +162,3 @@ const DashboardPage = () => {
 };
 
 export default DashboardPage;
-

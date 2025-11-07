@@ -1,6 +1,5 @@
-// models/User.js
-
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt'); 
 
 const userSchema = new mongoose.Schema(
   {
@@ -11,17 +10,34 @@ const userSchema = new mongoose.Schema(
     email: {
       type: String,
       required: true,
-      unique: true, // Her email sadece bir kez kayıt olabilir
+      unique: true,
     },
     password: {
       type: String,
       required: true,
     },
+    
+    avatar: {
+      type: String,
+      required: false,
+      default: 'Bear', 
+    },
   },
   {
-    timestamps: true, // createdAt ve updatedAt alanlarını otomatik ekler
+    timestamps: true,
   }
 );
 
-// Şemayı 'User' adıyla model olarak dışa aktar
+userSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) {
+    return next();
+  }
+  
+  // Hash işlemi
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+  next();
+});
+
 module.exports = mongoose.model('User', userSchema);
+
