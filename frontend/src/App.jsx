@@ -11,12 +11,10 @@ import MainLayout from './components/MainLayout';
 function App() {
   return (
     <Routes>
-      {/* Public (Navbar'sız) Rotalar */}
       <Route path="/login" element={<AuthPage />} />
       <Route path="/register" element={<AuthPage />} />
       <Route path="/" element={<AuthPage />} />
-
-      {/* Protected (Navbar'lı) Rotalar */}
+      
       <Route element={<MainLayout />}>
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/analysis" element={<StatisticsPage />} />

@@ -2,7 +2,7 @@ const asyncHandler = require('express-async-handler');
 const Task = require('../models/Task'); 
 const mongoose = require('mongoose');
 
-// @desc    List all of the user's tasks
+// @desc    Kullanıcının tüm görevlerini listeleme
 // @route   GET /api/tasks
 // @access  Private (Login Required)
 const getTasks = asyncHandler(async (req, res) => {
@@ -10,15 +10,14 @@ const getTasks = asyncHandler(async (req, res) => {
   res.json(tasks);
 });
 
-// @desc    Create a new task
+// @desc    Görev oluşturma
 // @route   POST /api/tasks
 // @access  Private
 const createTask = asyncHandler(async (req, res) => {
   const { title, description, category, status, dueDate, dueTime } = req.body;
 
   if (!title || !category || !status) {
-    res.status(400);
-    throw new Error('Please provide title, category, and status');
+      return res.status(400).json({ message: 'Please provide title, category, and status' });
   }
 
   const task = new Task({
@@ -33,23 +32,21 @@ const createTask = asyncHandler(async (req, res) => {
 
   const createdTask = await task.save();
   res.status(201).json(createdTask);
-}); // <-- EKSİK OLAN PARANTEZ BURAYA EKLENDİ
+}); 
 
-// @desc    Update a task
+// @desc    Yeni bir görev oluşturma
 // @route   PUT /api/tasks/:id
 // @access  Private
 const updateTask = asyncHandler(async (req, res) => {
   const task = await Task.findById(req.params.id);
 
   if (!task) {
-    res.status(404); // 404 Not Found
-    throw new Error('Task not found');
+      return res.status(404).json({ message: 'Task not found' });
   }
 
-  // Security: Does this task belong to this user?
+  // Gerekli alanlar (başlık, kategori, durum) dolu mu?
   if (task.user.toString() !== req.user._id.toString()) {
-    res.status(401); // 401 Unauthorized
-    throw new Error('You are not authorized to update this task');
+      return res.status(401).json({ message: 'You are not authorized to update this task' });
   }
 
   task.title = req.body.title || task.title;
@@ -63,27 +60,25 @@ const updateTask = asyncHandler(async (req, res) => {
   res.json(updatedTask);
 });
 
-// @desc    Delete a task
+// @desc    Görev silme
 // @route   DELETE /api/tasks/:id
 // @access  Private
 const deleteTask = asyncHandler(async (req, res) => {
   const task = await Task.findById(req.params.id);
 
   if (!task) {
-    res.status(404);
-    throw new Error('Task not found');
+      return res.status(404).json({ message: 'Task not found' });
   }
 
   if (task.user.toString() !== req.user._id.toString()) {
-    res.status(401);
-    throw new Error('You are not authorized to delete this task');
+      return res.status(401).json({ message: 'You are not authorized to delete this task' });
   }
 
-  await task.deleteOne(); // Delete the task
+  await task.deleteOne(); 
   res.json({ message: 'Task successfully deleted' });
 });
 
-// @desc    Get user's task statistics
+// @desc    Kullanıcı istatistiklerini getirme
 // @route   GET /api/tasks/stats
 // @access  Private
 const getTaskStats = asyncHandler(async (req, res) => {
@@ -101,8 +96,8 @@ const getTaskStats = asyncHandler(async (req, res) => {
     },
   };
 
-  // 3. Group the output again by category
-  //    and push the status/count info into an array
+  // Tekrar 'kategori'ye göre gruplar
+  // ve 'statuses' adında bir diziye {status: 'To Do', count: 5} gibi bilgileri ekler
   const groupStage2 = {
     $group: {
       _id: '$_id.category', 
@@ -116,7 +111,6 @@ const getTaskStats = asyncHandler(async (req, res) => {
     },
   };
 
-  // 4. Rename the output field to "category"
   const projectStage = {
     $project: {
       _id: 0, 
@@ -126,7 +120,6 @@ const getTaskStats = asyncHandler(async (req, res) => {
     },
   };
 
-  // 5. Run the Aggregation Pipeline
   const stats = await Task.aggregate([
     matchStage,
     groupStage1,
@@ -135,13 +128,12 @@ const getTaskStats = asyncHandler(async (req, res) => {
   ]);
 
   if (!stats) {
-    res.status(404);
-    throw new Error('Statistics not found');
+      return res.status(404).json({ message: 'Statistics not found' });
   }
-
   res.json(stats);
 });
 
+// Fonksiyonları router'da kullanmak için dışa aktarma
 module.exports = {
   getTasks,
   createTask,

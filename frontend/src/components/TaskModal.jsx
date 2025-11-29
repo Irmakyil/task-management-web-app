@@ -2,16 +2,16 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import styles from './TaskModal.module.css';
 
-// --- YENİ EKLENDİ: O anki tarihi YYYY-MM-DD formatında alır ---
+// O anki tarihi YYYY-MM-DD formatında alır 
 const getTodayDate = () => {
   const now = new Date();
   const year = now.getFullYear();
-  const month = (now.getMonth() + 1).toString().padStart(2, '0'); // (getMonth 0-11 arasıdır)
+  const month = (now.getMonth() + 1).toString().padStart(2, '0'); 
   const day = now.getDate().toString().padStart(2, '0');
   return `${year}-${month}-${day}`;
 };
 
-// --- YENİ EKLENDİ: O anki saati HH:MM formatında alır ---
+// O anki saati HH:MM formatında alır 
 const getCurrentTime = () => {
   const now = new Date();
   const hours = now.getHours().toString().padStart(2, '0');
@@ -19,23 +19,17 @@ const getCurrentTime = () => {
   return `${hours}:${minutes}`;
 };
 
-
 const TaskModal = ({ onClose, taskToEdit, onTaskSaved }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('Job');
   
-  // --- GÜNCELLENDİ: State'ler artık varsayılan değerler yerine güncel zamanı alıyor ---
-  const [dueDate, setDueDate] = useState(getTodayDate()); // Önce: ''
-  const [dueTime, setDueTime] = useState(getCurrentTime()); // Önce: '09:00'
+  const [dueDate, setDueDate] = useState(getTodayDate());
+  const [dueTime, setDueTime] = useState(getCurrentTime()); 
   
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // ÖNEMLİ: Bu kısım, "Edit Task" (Görevi Düzenle) modunda
-    // (taskToEdit dolu geldiğinde) bu varsayılanları ezer.
-    // Bu yüzden "Create New Task"a bastığınızda yeni kod çalışır,
-    // "Edit Task"a bastığınızda bu kod çalışır.
     if (taskToEdit) {
       setTitle(taskToEdit.title);
       setDescription(taskToEdit.description || '');
@@ -58,7 +52,7 @@ const TaskModal = ({ onClose, taskToEdit, onTaskSaved }) => {
       const selectedDateTime = new Date(`${dueDate}T${dueTime}`);
       const now = new Date();
       
-      if (selectedDateTime < new Date(now.getTime() - 60000)) { // 1 dk tolerans
+      if (selectedDateTime < new Date(now.getTime() - 60000)) { 
         setError('You cannot set a deadline in the past.');
         return; 
       }
@@ -85,12 +79,12 @@ const TaskModal = ({ onClose, taskToEdit, onTaskSaved }) => {
     try {
       if (taskToEdit) {
         await axios.put(
-          `http://localhost:5000/api/tasks/${taskToEdit._id}`,
+          `http://localhost:5050/api/tasks/${taskToEdit._id}`,
           taskData,
           config
         );
       } else {
-        await axios.post('http://localhost:5000/api/tasks', taskData, config);
+        await axios.post('http://localhost:5050/api/tasks', taskData, config);
       }
       onTaskSaved();
       onClose();
@@ -109,6 +103,7 @@ const TaskModal = ({ onClose, taskToEdit, onTaskSaved }) => {
         {error && <p className={styles.error}>{error}</p>}
 
         <form onSubmit={handleSubmit}>
+          {/* Görev Adı (Title) */}
           <div className={styles.formGroup}>
             <label htmlFor="title">Task Name</label>
             <input
@@ -121,6 +116,7 @@ const TaskModal = ({ onClose, taskToEdit, onTaskSaved }) => {
             />
           </div>
 
+          {/* Açıklama (Description) */}
           <div className={styles.formGroup}>
             <label htmlFor="description">Description</label>
             <textarea
@@ -131,6 +127,7 @@ const TaskModal = ({ onClose, taskToEdit, onTaskSaved }) => {
             ></textarea>
           </div>
 
+          {/* Tarih/Saat ve Kategori için yatay (row) yerleşim */}
           <div className={styles.row}>
             <div className={styles.formGroup} style={{ flex: 2 }}>
               <label htmlFor="dueDate">Deadline</label>
@@ -141,8 +138,6 @@ const TaskModal = ({ onClose, taskToEdit, onTaskSaved }) => {
                   value={dueDate}
                   onChange={(e) => setDueDate(e.target.value)}
                   className={styles.dateInput}
-                  // Not: 'min' özelliği, geçmiş tarih engellemesini 
-                  // frontend'de de zorunlu kılar (JS'e ek olarak)
                   min={getTodayDate()} 
                 />
                 <input
@@ -155,6 +150,7 @@ const TaskModal = ({ onClose, taskToEdit, onTaskSaved }) => {
               </div>
             </div>
             
+            {/* Kategori (Category) */}
             <div className={styles.formGroup} style={{ flex: 1 }}>
               <label htmlFor="category">Category</label>
               <select
@@ -171,8 +167,7 @@ const TaskModal = ({ onClose, taskToEdit, onTaskSaved }) => {
             </div>
           </div>
 
-          {/* "Mark as completed" checkbox'ı buradan kaldırıldı */}
-
+          {/* Form Eylemleri (Butonlar) */}
           <div className={styles.formActions}>
             <button type="button" className={styles.cancelButton} onClick={onClose}>
               Cancel

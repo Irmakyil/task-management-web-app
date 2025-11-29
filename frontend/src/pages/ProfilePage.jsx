@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import styles from './ProfilePage.module.css'; // Stil dosyasını import et
+import styles from './ProfilePage.module.css'; 
 import { useNavigate } from 'react-router-dom';
-// import MainLayout from '../components/MainLayout'; // <-- 1. BU SATIRI SİLİN
 
-// Düzeltilmiş import yolları (src/assets/ klasöründen)
 import bearAvatar from '../assets/bear.png';
 import beeAvatar from '../assets/bee.png';
 import foxAvatar from '../assets/fox.png';
@@ -45,7 +43,7 @@ const ProfilePage = () => {
       }
       try {
         const config = { headers: { Authorization: `Bearer ${token}` } };
-        const { data } = await axios.get('http://localhost:5000/api/auth/profile', config);
+        const { data } = await axios.get('http://localhost:5050/api/auth/profile', config);
         
         setName(data.name);
         setEmail(data.email);
@@ -63,18 +61,18 @@ const ProfilePage = () => {
   // Profil Güncelleme (İsim / Avatar) Fonksiyonu
   const handleProfileUpdate = async (e) => {
     e.preventDefault();
-    setProfileMessage(''); // Önceki mesajı temizle
+    setProfileMessage(''); 
     const token = localStorage.getItem('token');
     try {
       const config = { headers: { Authorization: `Bearer ${token}` } };
       const { data } = await axios.put(
-        'http://localhost:5000/api/auth/profile', 
+        'http://localhost:5050/api/auth/profile', 
         { name, avatar: selectedAvatar }, 
         config
       );
       
-      localStorage.setItem('token', data.token); // Token güncellenmişse sakla
-      window.dispatchEvent(new CustomEvent('avatarUpdated')); // Navbar'daki avatarı güncellemek için event
+      localStorage.setItem('token', data.token);
+      window.dispatchEvent(new CustomEvent('avatarUpdated')); 
       setProfileMessage('Profile updated successfully!');
     } catch (error) {
       setProfileMessage(error.response?.data?.message || 'Error updating profile.');
@@ -95,7 +93,7 @@ const ProfilePage = () => {
     try {
       const config = { headers: { Authorization: `Bearer ${token}` } };
       await axios.put(
-        'http://localhost:5000/api/auth/password', 
+        'http://localhost:5050/api/auth/password', 
         { currentPassword, newPassword }, 
         config
       );
@@ -111,21 +109,17 @@ const ProfilePage = () => {
 
   // Yüklenme ekranı
   if (loading) {
-    // 2. <MainLayout> sarmalayıcısını buradan kaldırın
     return <div className={styles.loadingContainer}>Loading profile...</div>;
   }
 
-  // --- JSX (HTML) Kısmı ---
-  // 3. <MainLayout> sarmalayıcısını buradan kaldırın
   return (
     <div className={styles.profileContainer}>
       
-      {/* --- YENİ BAŞLIK YAPISI --- */}
+      {/* --- BAŞLIK YAPISI --- */}
       <div className={styles.pageHeader}>
         <h1 className={styles.pageTitle}>Profile Settings</h1>
         <p className={styles.pageSubtitle}>Update your name and choose a profile image.</p>
       </div>
-      {/* --- BAŞLIK BİTİŞİ --- */}
       
       {/* 1. Kısım: Profil Ayarları (İsim/Avatar) */}
       <div className={styles.formSection}>
@@ -175,7 +169,7 @@ const ProfilePage = () => {
               id="email" 
               className={`${styles.formInput} ${styles.disabledInput}`}
               value={email}
-              disabled // Email değiştirilemez
+              disabled 
             />
           </div>
           
@@ -195,49 +189,52 @@ const ProfilePage = () => {
       </div>
 
       {/* 2. Kısım: Şifre Değiştirme */}
-      <div className={styles.formSection}>
-        <h2 className={styles.sectionTitle}>Change Password</h2>
-        <p className={styles.sectionSubtitle}>Update your password to keep your account secure.</p>
-        
-        <form onSubmit={handleChangePassword} className={styles.innerForm}>
-          <div className={styles.passwordGrid}>
-            <div className={styles.formGroup}>
-              <label htmlFor="currentPassword" className={styles.formLabel}>Current Password</label>
-              <input 
-                type="password" 
-                id="currentPassword"
-                className={styles.formInput}
-                value={currentPassword}
-                onChange={(e) => setCurrentPassword(e.target.value)}
-                placeholder="Enter current password"
-                required
-              />
-            </div>
-            <div className={styles.formGroup}>
-              <label htmlFor="newPassword" className={styles.formLabel}>New Password</label>
-              <input 
-                type="password" 
-                id="newPassword"
-                className={styles.formInput}
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="Enter new password"
-                required
-              />
-            </div>
-            <div className={styles.formGroup}>
-              <label htmlFor="confirmPassword" className={styles.formLabel}>Confirm New Password</label>
-              <input 
-                type="password" 
-                id="confirmPassword"
-                className={styles.formInput}
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Confirm new password"
-                required
-              />
-            </div>
-          </div>
+      <div className={styles.formSection}>
+        <h2 className={styles.sectionTitle}>Change Password</h2>
+        <p className={styles.sectionSubtitle}>Update your password to keep your account secure.</p>
+        
+        <form onSubmit={handleChangePassword} className={styles.innerForm}>
+          <div className={styles.passwordGrid}>
+            {/* Current Password */}
+            <div className={styles.formGroup}>
+              <label htmlFor="currentPassword" className={styles.formLabel}>Current Password</label>
+              <input 
+                type="password" 
+                id="currentPassword"
+                className={styles.formInput}
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                placeholder="Enter current password"
+                required
+              />
+            </div>
+            {/* New Password */}
+            <div className={styles.formGroup}>
+              <label htmlFor="newPassword" className={styles.formLabel}>New Password</label>
+              <input 
+                type="password" 
+                id="newPassword"
+                className={styles.formInput}
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="Enter new password"
+                required
+              />
+            </div>
+            {/* Confirm New Password */}
+            <div className={styles.formGroup}>
+              <label htmlFor="confirmPassword" className={styles.formLabel}>Confirm New Password</label>
+              <input 
+                type="password" 
+                id="confirmPassword"
+                className={styles.formInput}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Confirm new password"
+                required
+              />
+            </div>
+          </div>
           
           {/* Şifre Mesajı (Başarı/Hata) */}
           {passwordMessage && (

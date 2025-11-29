@@ -3,15 +3,15 @@ const bcrypt = require('bcrypt');
 const generateToken = require('../utils/generateToken');
 const asyncHandler = require('express-async-handler');
 
-// @desc Register a new user
+// Kullanıcı oluşturma
 const registerUser = asyncHandler(async (req, res) => {
   const { name, email, password } = req.body;
   if (!name || !email || !password) {
-    res.status(400); throw new Error('Please fill in all fields');
+    return res.status(400).json({ message: 'Please fill in all fields' });
   }
   const userExists = await User.findOne({ email });
   if (userExists) {
-    res.status(400); throw new Error('User with this email already exists');
+    return res.status(400).json({ message: 'User with this email already exists' });
   }
   const user = await User.create({ name, email, password });
 
@@ -24,11 +24,11 @@ const registerUser = asyncHandler(async (req, res) => {
       token: generateToken(user._id, user.name, user.email, user.avatar), 
     });
   } else {
-    res.status(400); throw new Error('Invalid user data');
+    return res.status(400).json({ message: 'Invalid user data' });
   }
 });
 
-// @desc Authenticate user & get token (Login)
+// Kullanıcı girişi
 const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
@@ -42,11 +42,11 @@ const loginUser = asyncHandler(async (req, res) => {
       token: generateToken(user._id, user.name, user.email, user.avatar || 'Bear'), 
     });
   } else {
-    res.status(401); throw new Error('Invalid email or password');
+    return res.status(401).json({ message: 'Invalid email or password' });
   }
 });
 
-// @desc Get current user's profile
+// Profilde kullanıcı bilgilerini getirme
 const getUserProfile = asyncHandler(async (req, res) => {
   res.json({
     _id: req.user._id,
@@ -56,7 +56,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
   });
 });
 
-// @desc Update user profile (name and avatar)
+// Profil bilgilerini güncelleme (isim ve avatar)
 const updateUserProfile = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
   if (user) {
@@ -71,18 +71,18 @@ const updateUserProfile = asyncHandler(async (req, res) => {
       token: generateToken(updatedUser._id, updatedUser.name, updatedUser.email, updatedUser.avatar || 'Bear'), 
     });
   } else {
-    res.status(404); throw new Error('User not found');
+    return res.status(404).json({ message: 'User not found' });
   }
 });
 
-// @desc Update user password
+// Şifre güncelleme
 const updateUserPassword = asyncHandler(async (req, res) => {
   const { currentPassword, newPassword } = req.body;
   if (!currentPassword || !newPassword) {
-    res.status(400); throw new Error('Please provide both current and new passwords');
+    return res.status(400).json({ message: 'Please provide both current and new passwords' });
   }
   if (newPassword.length < 6) {
-     res.status(400); throw new Error('New password must be at least 6 characters long');
+     return res.status(400).json({ message: 'New password must be at least 6 characters long'});
   }
   const user = await User.findById(req.user._id);
   if (user && (await bcrypt.compare(currentPassword, user.password))) {
@@ -90,7 +90,7 @@ const updateUserPassword = asyncHandler(async (req, res) => {
     await user.save();
     res.json({ message: 'Password updated successfully' });
   } else {
-    res.status(401); throw new Error('Invalid current password');
+    return res.status(401).json({message: 'Invalid current password'});
   }
 });
 

@@ -1,117 +1,173 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
+import { FaEye, FaEyeSlash, FaSun, FaMoon, FaUser, FaEnvelope, FaLock } from 'react-icons/fa';
 import styles from './AuthPage.module.css';
-import { FaEye, FaEyeSlash, FaSun, FaMoon } from 'react-icons/fa'; 
-
 import mintLeafLogo from '../assets/logo.png';
 
-const AuthThemeToggle = () => {
-  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
+// Tema Değiştirme
+const AuthThemeToggle = ({ theme, setTheme }) => {
+  return (
+    <button
+      className={styles.themeToggleButton}
+      onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+      aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+    >
+      {theme === 'dark' ? <FaMoon className={styles.themeIcon} /> : <FaSun className={styles.themeIcon} />}
+    </button>
+  );
+};
 
+//İkonlar
+const IconInput = ({ id, label, type, value, onChange, placeholder, autoComplete, required, icon: Icon, isPassword = false, showPassword, setShowPassword, customStyles }) => {
+    
+    const inputType = isPassword && !showPassword ? 'password' : 'text';
+
+    return (
+        <div className={styles.formGroup}>
+            <label htmlFor={id}>{label}</label>
+            <div className={styles.inputWrapper}>
+                {/* Sol İkon */}
+                <Icon className={styles.inputIconLeft} /> 
+                
+                <input
+                    type={inputType}
+                    id={id}
+                    name={id}
+                    className={`${styles.formInput} ${customStyles}`}
+                    value={value}
+                    onChange={onChange}
+                    placeholder={placeholder}
+                    autoComplete={autoComplete}
+                    required
+                />
+                
+                {/* Sağ Göz İkonu */}
+                {isPassword && (
+                    <span onClick={() => setShowPassword(!showPassword)} className={styles.eyeIcon}>
+                        {showPassword ? <FaEyeSlash /> : <FaEye />}
+                    </span>
+                )}
+            </div>
+        </div>
+    );
+};
+
+const AuthPage = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Tema state'ini ve useEffect'i burada tutuyoruz.
+  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('theme', theme);
   }, [theme]);
 
-  const toggleTheme = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark');
-  };
+  // URL'e göre mod: /register => true, /login => false
+  const isRegister = location.pathname === '/register';
 
-return (
-    <button
-      className={styles.themeToggleButton}
-      onClick={toggleTheme}
-      aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-    >
-      {/* Temaya göre ikonu değiştir */}
-      {theme === 'dark' ? (
-        <FaMoon className={styles.themeIcon} />
-      ) : (
-        <FaSun className={styles.themeIcon} />
-      )}
-    </button>
-  );
-};
+  // State'ler
+  const [siEmail, setSiEmail] = useState('');
+  const [siPassword, setSiPassword] = useState('');
+  const [suName, setSuName] = useState('');
+  const [suEmail, setSuEmail] = useState('');
+  const [suPassword, setSuPassword] = useState('');
+  const [suConfirmPassword, setSuConfirmPassword] = useState('');
 
-
-const AuthPage = () => {
-  const [isRegister, setIsRegister] = useState(false);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState({ type: '', content: '' });
-  
-  const navigate = useNavigate();
+  const [formNonce, setFormNonce] = useState(0);
 
-  // Token varsa Dashboard'a yönlendir
   useEffect(() => {
-    if (localStorage.getItem('token')) {
-      navigate('/dashboard');
-    }
+    if (localStorage.getItem('token')) navigate('/dashboard');
   }, [navigate]);
 
+  // View değişiminde state temizleme
+  useEffect(() => {
+    setMessage({ type: '', content: '' });
+    setShowPassword(false);
+
+    if (isRegister) {
+      setSiEmail(''); setSiPassword('');
+    } else {
+      setSuName(''); setSuEmail(''); setSuPassword(''); setSuConfirmPassword('');
+    }
+    setFormNonce(n => n + 1);
+  }, [isRegister]);
+
+  const goSignIn = () => navigate('/login');
+  const goSignUp = () => navigate('/register');
+
+  // Form gönderildiğinde çalışacak ana fonksiyon
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage({ type: '', content: '' });
 
     if (isRegister) {
-      // --- KAYIT (SIGN UP) ---
-      if (password !== confirmPassword) {
+      if (suPassword !== suConfirmPassword) {
         setMessage({ type: 'error', content: 'Passwords do not match.' });
         return;
       }
       try {
-        await axios.post('http://localhost:5000/api/auth/register', { name, email, password });
+        await axios.post('http://localhost:5050/api/auth/register', {
+          name: suName, email: suEmail, password: suPassword,
+        });
         setMessage({ type: 'success', content: 'Registration successful! Please sign in.' });
-        setIsRegister(false);
-        setName(''); setEmail(''); setPassword(''); setConfirmPassword('');
+        setSuName(''); setSuEmail(''); setSuPassword(''); setSuConfirmPassword('');
+        goSignIn();
       } catch (err) {
         setMessage({ type: 'error', content: err.response?.data?.message || 'Registration failed.' });
       }
     } else {
-      // --- GİRİŞ (SIGN IN) ---
       try {
-        const { data } = await axios.post('http://localhost:5000/api/auth/login', { email, password });
-        localStorage.setItem('token', data.token); 
-        window.dispatchEvent(new CustomEvent('avatarUpdated')); 
+        const { data } = await axios.post('http://localhost:5050/api/auth/login', {
+          email: siEmail, password: siPassword,
+        });
+        localStorage.setItem('token', data.token);
+        window.dispatchEvent(new CustomEvent('avatarUpdated'));
         navigate('/dashboard');
       } catch (err) {
-        setMessage({ type: 'error', content: err.response?.data?.message || 'Login failed.' });
+        const resp = err?.response;
+        const apiMsg = resp?.data?.message;
+        if (resp?.status === 401 || /invalid credentials/i.test(apiMsg || '')) {
+          setMessage({ type: 'error', content: 'Invalid credentials.' });
+          return;
+        }
+        setMessage({ type: 'error', content: apiMsg || 'Login failed.' });
       }
     }
   };
 
+  const formKey = `${isRegister ? 'signup' : 'signin'}-${formNonce}`;
+
   return (
     <div className={styles.authContainer}>
-      {/* Sol Panel (Marka) */}
+      {/* Sol Panel */}
       <div className={styles.leftPanel}>
         <img src={mintLeafLogo} alt="TaskMint Logo" className={styles.brandLogo} />
         <h1 className={styles.brandName}>TaskMint</h1>
-        <p className={styles.tagline}>Manage Your Tasks. Achieve Your Goals.</p>
+        <p className={styles.tagline}>The easiest way to achieve your goals.</p>
       </div>
 
-      {/* Sağ Panel (Form) */}
+      {/* Sağ Panel (Formlar) */}
       <div className={styles.rightPanel}>
-        {/* TEMA BUTONU BURAYA EKLENDİ */}
         <div className={styles.themeToggleContainer}>
-          <AuthThemeToggle />
+          <AuthThemeToggle theme={theme} setTheme={setTheme} />
         </div>
-        
+
         <div className={styles.formWrapper}>
-          {/* Sekmeler (Sign In / Sign Up) */}
+          {/* Sekmeler */}
           <div className={styles.tabContainer}>
-            <button 
+            <button
               className={`${styles.tabButton} ${!isRegister ? styles.active : ''}`}
-              onClick={() => setIsRegister(false)}
+              onClick={goSignIn}
             >
               Sign In
             </button>
-            <button 
+            <button
               className={`${styles.tabButton} ${isRegister ? styles.active : ''}`}
-              onClick={() => setIsRegister(true)}
+              onClick={goSignUp}
             >
               Sign Up
             </button>
@@ -120,77 +176,67 @@ const AuthPage = () => {
           <h2 className={styles.formTitle}>{isRegister ? 'Create Your Account' : 'Sign In'}</h2>
           <p className={styles.formSubtitle}>{isRegister ? 'Get started now.' : 'Welcome back!'}</p>
 
-          <form onSubmit={handleSubmit}>
-            {isRegister && (
-              <div className={styles.formGroup}>
-                <label htmlFor="name">Name</label>
-                <input
-                  type="text"
-                  id="name"
-                  className={styles.formInput} 
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Enter your name"
-                  required
+          <form key={formKey} onSubmit={handleSubmit} autoComplete="on">
+            {isRegister ? (
+              <>
+                {/* Name Girişi */}
+                <IconInput
+                    id="su-name" label="Name" type="text"
+                    value={suName} onChange={(e) => setSuName(e.target.value)}
+                    placeholder="Enter your name" autoComplete="section-signup name" required
+                    icon={FaUser}
+                    customStyles={styles.inputWithIcon}
                 />
-              </div>
-            )}
 
-            <div className={styles.formGroup}>
-              <label htmlFor="email">Email</label>
-              <input
-                type="email"
-                id="email"
-                className={styles.formInput}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="example@email.com"
-                required
-              />
-            </div>
-
-            <div className={styles.formGroup}>
-              <label htmlFor="password">Password</label>
-              <div className={styles.passwordWrapper}>
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  id="password"
-                  className={styles.formInput}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter password"
-                  required
+                {/* Email Girişi */}
+                <IconInput
+                    id="su-email" label="Email" type="email"
+                    value={suEmail} onChange={(e) => setSuEmail(e.target.value)}
+                    placeholder="example@email.com" autoComplete="section-signup email" required
+                    icon={FaEnvelope}
+                    customStyles={styles.inputWithIcon}
                 />
-                <span onClick={() => setShowPassword(!showPassword)} className={styles.eyeIcon}>
-                  {showPassword ? <FaEyeSlash /> : <FaEye />}
-                </span>
-              </div>
-            </div>
 
-            {isRegister && (
-              <div className={styles.formGroup}>
-                <label htmlFor="confirmPassword">Confirm Password</label>
-                <div className={styles.passwordWrapper}>
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    id="confirmPassword"
-                    className={styles.formInput} 
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="Confirm password"
-                    required
-                  />
-                  <span onClick={() => setShowPassword(!showPassword)} className={styles.eyeIcon}>
-                    {showPassword ? <FaEyeSlash /> : <FaEye />}
-                  </span>
-                </div>
-              </div>
+                {/* Password Girişi */}
+                <IconInput
+                    id="su-password" label="Password" type="password"
+                    value={suPassword} onChange={(e) => setSuPassword(e.target.value)}
+                    placeholder="Enter password" autoComplete="section-signup new-password" required
+                    icon={FaLock} isPassword showPassword={showPassword} setShowPassword={setShowPassword}
+                    customStyles={styles.inputWithIcon}
+                />
+
+                {/* Confirm Password Girişi */}
+                <IconInput
+                    id="su-confirm" label="Confirm Password" type="password"
+                    value={suConfirmPassword} onChange={(e) => setSuConfirmPassword(e.target.value)}
+                    placeholder="Confirm password" autoComplete="section-signup new-password" required
+                    icon={FaLock} isPassword showPassword={showPassword} setShowPassword={setShowPassword}
+                    customStyles={styles.inputWithIcon}
+                />
+              </>
+            ) : (
+              <>
+                {/* Email Girişi (Sign In) */}
+                <IconInput
+                    id="si-email" label="Email" type="email"
+                    value={siEmail} onChange={(e) => setSiEmail(e.target.value)}
+                    placeholder="example@email.com" autoComplete="section-signin email" required
+                    icon={FaEnvelope}
+                    customStyles={styles.inputWithIcon}
+                />
+
+                {/* Password Girişi (Sign In) */}
+                <IconInput
+                    id="si-password" label="Password" type="password"
+                    value={siPassword} onChange={(e) => setSiPassword(e.target.value)}
+                    placeholder="Enter password" autoComplete="section-signin current-password" required
+                    icon={FaLock} isPassword showPassword={showPassword} setShowPassword={setShowPassword}
+                    customStyles={styles.inputWithIcon}
+                />
+              </>
             )}
 
-            {!isRegister && (
-              <Link to="/forgot-password" className={styles.forgotLink}>Forgot Password?</Link>
-            )}
-            
             {message.content && (
               <p className={message.type === 'error' ? styles.messageError : styles.messageSuccess}>
                 {message.content}
@@ -200,21 +246,20 @@ const AuthPage = () => {
             <button type="submit" className={styles.submitButton}>
               {isRegister ? 'Sign Up' : 'Sign In'}
             </button>
-            
           </form>
 
           <div className={styles.toggleLinkContainer}>
             {isRegister ? (
               <>
                 Already have an account?{' '}
-                <button onClick={() => setIsRegister(false)} className={styles.toggleLink}>
+                <button onClick={goSignIn} className={styles.toggleLink}>
                   Sign In
                 </button>
               </>
             ) : (
               <>
                 Don't have an account?{' '}
-                <button onClick={() => setIsRegister(true)} className={styles.toggleLink}>
+                <button onClick={goSignUp} className={styles.toggleLink}>
                   Sign Up
                 </button>
               </>

@@ -76,19 +76,17 @@ const TaskItem = ({ task, onDelete, onEdit, onToggleStatus }) => {
     // Vade geçmiş veya son 24 saat içinde mi kontrol et
     if (hoursRemaining < 0) {
       isUrgent = true;
-      urgentMessage = "Overdue"; // Vade geçti
+      urgentMessage = "Overdue"; 
     } else if (hoursRemaining <= 24) {
       isUrgent = true;
-      urgentMessage = `Last ${Math.ceil(hoursRemaining)} hour!`; // Son X saat!
+      urgentMessage = `Last ${Math.ceil(hoursRemaining)} hour!`; 
     }
 
     return { isUrgent, isCompleted, urgentMessage };
   };
 
-  // getDeadlineInfo fonksiyonundan gerekli verileri al
   const { isUrgent, isCompleted, urgentMessage } = getDeadlineInfo();
 
-  // Kartın genel stilini ve kategori/durum bazlı kenarlık stilini belirler
   const cardClasses = [
     styles.taskCard,
     isCompleted ? styles.borderCompleted : (isUrgent ? styles.borderUrgent : getCategoryBorderClass(task.category))
@@ -117,25 +115,25 @@ const TaskItem = ({ task, onDelete, onEdit, onToggleStatus }) => {
         </div>
       </div>
 
-      {/* Orta Kısım: Açıklama ve Tarih/Saat Bilgisi */}
+      {/* Açıklama ve Tarih/Saat Bilgisi */}
       <div className={styles.cardMiddle}>
-        {/* İSTEK 1: Görev Açıklaması */}
+        {/* Görev Açıklaması */}
         {task.description && <p className={styles.description}>{task.description}</p>}
         
-        {/* Tarih ve Saat Gösterimi (eğer varsa) */}
+        {/* Tarih ve Saat Gösterimi */}
         {task.dueDate ? (
           <div className={styles.dateTimeWrapper}>
             <span className={styles.dateTime}>
               <FaCalendarAlt /> {formatDisplayDate(task.dueDate)} {/* Formatlanmış Tarih */}
             </span>
-            {task.dueTime && ( // Eğer saat bilgisi varsa göster
+            {task.dueTime && ( 
               <span className={styles.dateTime}>
                 <FaClock /> {task.dueTime} {/* Saat Bilgisi */}
               </span>
             )}
           </div>
         ) : (
-          <span className={styles.dateTime}>&nbsp;</span> // Tarih yoksa görsel tutarlılık için boşluk bırak
+          <span className={styles.dateTime}>&nbsp;</span> 
         )}
       </div>
 

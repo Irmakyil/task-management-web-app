@@ -14,7 +14,7 @@ const { protect } = require('../middleware/authMiddleware');
 router.post('/register', registerUser);
 router.post('/login', loginUser);
 
-// GET (Profili al) ve PUT (Profili güncelle) için aynı rota
+// '/profile' rotası hem GET (bilgi alma) hem de PUT (güncelleme) işlemlerini destekler
 router
   .route('/profile')
   .get(protect, getUserProfile)

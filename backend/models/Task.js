@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
+//Görevlerin veritabanı şeması
 const taskSchema = new mongoose.Schema(
   {
     user: {

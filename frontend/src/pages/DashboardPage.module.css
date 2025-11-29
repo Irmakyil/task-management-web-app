@@ -1,3 +1,4 @@
+/* Sayfa Başlığı */
 .tasksHeader {
   display: flex;
   justify-content: space-between;
@@ -19,6 +20,7 @@
   border-radius: 6px;
 }
 
+/* "Create New Task" butonu */
 .addButton {
   background-color: var(--accent);
   color: var(--accent-text); 
@@ -38,6 +40,7 @@
   background-color: var(--accent-hover); 
 }
 
+/* Filtre (Status, Category) dropdown'larını içeren ana sarmalayıcı */
 .filterContainer {
   display: flex;
   flex-direction: row;
@@ -93,6 +96,7 @@
   color: var(--text-primary); 
 }
 
+/* Kategori Filtresi Renklendirmesi */
 .filterSelect[data-category="All"] {
   background-color: var(--bg-secondary); 
   color: var(--text-primary); 
@@ -120,6 +124,7 @@
   color: var(--accent-text); 
 }
 
+/* Görev Listesi*/
 .taskList {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));

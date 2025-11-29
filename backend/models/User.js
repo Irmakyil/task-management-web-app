@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt'); 
 
+// Kullanıcı veritabanı şeması
 const userSchema = new mongoose.Schema(
   {
     name: {

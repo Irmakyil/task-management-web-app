@@ -1,3 +1,4 @@
+/* Ana Kart Yapısı */
 .taskCard {
   background-color: var(--bg-secondary); 
   border-radius: 12px; 
@@ -19,6 +20,7 @@
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2);
 }
 
+/* Dinamik Kenarlık Renkleri (Kategoriye Göre)*/
 .borderJob { border-left-color: var(--cat-job); }
 .borderPersonal { border-left-color: var(--cat-personal); }
 .borderHobby { border-left-color: var(--cat-hobby); }
@@ -43,7 +45,7 @@
 }
 .borderCompleted:hover { border-color: var(--color-success); } 
 
-
+/* Kart Bölümleri (Header, Middle, Footer)*/
 .cardHeader {
   display: flex;
   justify-content: space-between;

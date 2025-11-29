@@ -1,23 +1,22 @@
-/* KOYU MOD PALETİ */
+/* KOYU MOD PALETİ (Varsayılan Tema) */
 :root,
 [data-theme='dark'] {
   /* Arkaplanlar */
-  --bg-navbar: #10221E;      /* Navbar (Primary Background) */
-  --bg-primary: #10221E;      /* Ana Arkaplan (Primary Background) */
-  --bg-secondary: #2B4C44;  /* Kartlar, Modallar (Secondary) */
-  --bg-tertiary: #2B4C44;   /* Inputlar, Hover (Secondary) */
+  --bg-navbar: #10221E;      
+  --bg-primary: #10221E;      
+  --bg-secondary: #2B4C44; 
+  --bg-tertiary: #2B4C44;    
 
   /* Metinler */
-  --text-navbar: #E0FFEC;     /* Navbar Metni */
-  --text-primary: #E0FFEC;     /* Ana İçerik Metni */
-  --text-secondary: #A2C2B3; /* Soluk Metin, Labellar */
-  --text-placeholder: #A2C2B3; /* Placeholder */
+  --text-navbar: #E0FFEC;      
+  --text-primary: #E0FFEC;      
+  --text-secondary: #A2C2B3; 
+  --text-placeholder: #A2C2B3; 
 
   /* Vurgu Rengi */
-  --accent: #7FB04A;         /* Ana Vurgu */
-  --accent-hover: #6c9a3f;     /* Vurgu Hover (Biraz Daha Koyu) */
-  --accent-text: #FFFFFF;      /* Vurgu Üstü Metin (Beyaz) */
-  /* Canlı Çim Yeşili RGB: 127, 176, 74 */
+  --accent: #7FB04A;         
+  --accent-hover: #6c9a3f;      
+  --accent-text: #FFFFFF;      
   --accent-rgb: 127, 176, 74;
 
   /* Kenarlıklar (Borders) */
@@ -30,32 +29,40 @@
   --cat-personal: #A076F9;
   --cat-hobby: #FF9F40;
   --cat-other: #6B7280;
+
+/* Arkaplan noktalı desen için 'color-mix' (modern CSS) kullanımı */
+  --dot-color: color-mix(in srgb, var(--bg-primary) 90%, #FFFFFF); 
+  --dot-pattern: radial-gradient(var(--dot-color) 1px, transparent 1px);
+  --dot-size: 40px 40px;
 }
 
 /* AÇIK MOD PALETİ  */
 [data-theme='light'] {
   /* Arkaplanlar */
-  --bg-navbar: #FFFFFF;      /* Navbar (Primary Background) */
-  --bg-primary: #F5FCF7;      /* Ana Arkaplan (Primary Background) */
-  --bg-secondary: #FFFFFF;  /* Kartlar, Modallar (Secondary) */
-  --bg-tertiary: #FFFFFF;   /* Inputlar, Hover (Secondary) */
+  --bg-navbar: #FFFFFF;      
+  --bg-primary: #F5FCF7;     
+  --bg-secondary: #FFFFFF; 
+  --bg-tertiary: #FFFFFF;    
 
   /* Metinler */
-  --text-primary: #2A3F3A;     /* Ana İçerik Metni */
-  --text-secondary: #6F8C82; /* Soluk Metin */
-  --text-placeholder: #6F8C82; /* Placeholder */
-  --text-navbar: #2A3F3A;     /* Navbar Metni */
+  --text-primary: #2A3F3A;    
+  --text-secondary: #6F8C82; 
+  --text-placeholder: #6F8C82; 
+  --text-navbar: #2A3F3A;     
 
-  /* Vurgu Rengi (Canlı Çim Yeşili) */
+  /* Vurgu Rengi */
   --accent: #7FB04A;
   --accent-hover: #6c9a3f;
-  --accent-text: #FFFFFF; /* Beyaz metin */
+  --accent-text: #FFFFFF; 
   --accent-rgb: 127, 176, 74;
 
   /* Kenarlıklar (Borders) */
   --border-color: #DDEEE5;
-  
-  /* Semantik renkler aynı kalır */
+
+  /* (%90 arkaplan rengi ile %10 siyahı karıştırır) */
+  --dot-color: color-mix(in srgb, var(--bg-primary) 90%, #000000); 
+  --dot-pattern: radial-gradient(var(--dot-color) 1px, transparent 1px);
+  --dot-size: 40px 40px;
 }
 
 /* 2. Global CSS Reset ve Temel Uygulama */
@@ -75,4 +82,17 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+}
+
+/* Erişilebilirlik (Accessibility) için yardımcı sınıf */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
 }

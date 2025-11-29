@@ -6,6 +6,7 @@ import TaskModal from '../components/TaskModal';
 import styles from './DashboardPage.module.css';
 
 const DashboardPage = () => {
+  //STATE'ler
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -25,12 +26,13 @@ const DashboardPage = () => {
     }
   }, [navigate]);
 
+  // API FONKSİYONLARI (CRUD)
   const fetchTasks = async () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
       const config = { headers: { Authorization: `Bearer ${token}` } };
-      const { data } = await axios.get('http://localhost:5000/api/tasks', config);
+      const { data } = await axios.get('http://localhost:5050/api/tasks', config);
       setTasks(data);
       setLoading(false);
     } catch (err) { setError('Could not load tasks.'); setLoading(false); }
@@ -41,7 +43,7 @@ const DashboardPage = () => {
       try {
         const token = localStorage.getItem('token');
         const config = { headers: { Authorization: `Bearer ${token}` } };
-        await axios.delete(`http://localhost:5000/api/tasks/${taskId}`, config);
+        await axios.delete(`http://localhost:5050/api/tasks/${taskId}`, config);
         setTasks(tasks.filter((task) => task._id !== taskId));
       } catch (err) { setError('Could not delete task.'); }
     }
@@ -59,7 +61,7 @@ const DashboardPage = () => {
       const token = localStorage.getItem('token');
       const config = { headers: { Authorization: `Bearer ${token}` } };
       await axios.put(
-        `http://localhost:5000/api/tasks/${taskToToggle._id}`,
+        `http://localhost:5050/api/tasks/${taskToToggle._id}`,
         { status: newStatus },
         config
       );
@@ -74,6 +76,7 @@ const DashboardPage = () => {
   const handleCloseModal = () => { setIsModalOpen(false); setTaskToEdit(null); };
   const handleTaskSaved = () => { fetchTasks(); };
 
+  //FİLTRELEME
   const categories = ['All', 'Job', 'Personal', 'Hobby', 'Other'];
   const statuses = ['All', 'Incomplete', 'Completed'];
 
@@ -89,6 +92,7 @@ const DashboardPage = () => {
 
   return (
     <>
+    {/* Başlık ve "Yeni Görev" butonu */}
       <div className={styles.tasksHeader}>
         <h1>Tasks</h1>
         {error && <p className={styles.pageError}>{error}</p>}
@@ -97,6 +101,7 @@ const DashboardPage = () => {
         </button>
       </div>
 
+    {/* Filtreleme Dropdown'ları */}
       <div className={styles.filterContainer}>
         <div className={styles.filterGroupWrapper}>
           <div className={styles.filterWrapper}>
@@ -133,7 +138,8 @@ const DashboardPage = () => {
           </div>
         </div>
       </div>
-
+      
+      {/* Görev Listesi */}
       <div className={styles.taskList}>
         {filteredTasks.length === 0 ? (
           <p>No tasks found for these filters.</p>

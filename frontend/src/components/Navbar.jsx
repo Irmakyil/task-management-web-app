@@ -58,7 +58,7 @@ const Navbar = () => {
     };
 
     window.addEventListener('storage', handleStorageChange);
-    window.addEventListener('avatarUpdated', handleAvatarUpdated); // Özel sinyal
+    window.addEventListener('avatarUpdated', handleAvatarUpdated); 
 
     setCurrentAvatarName(getAvatarFromToken());
 
@@ -82,7 +82,7 @@ const Navbar = () => {
         <div className={styles.navLeft}>
           <div className={styles.logo}>
             <Logo />
-            <span>TaskHub</span>
+            <span>TaskMint</span>
           </div>
           <NavLink 
             to="/dashboard" 
@@ -102,7 +102,7 @@ const Navbar = () => {
           </NavLink>
         </div>
 
-        {/* --- SAĞ TARAF GÜNCELLENDİ  --- */}
+        {/* SAĞ TARAF */}
         <div className={styles.navRight}>
           
           {/* 1. Profil Dropdown  */}

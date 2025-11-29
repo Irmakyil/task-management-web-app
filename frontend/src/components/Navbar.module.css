@@ -40,8 +40,6 @@
   object-fit: contain; 
 }
 
-
-
 .navLink {
   text-decoration: none;
   color: var(--text-secondary);
