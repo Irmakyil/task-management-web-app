@@ -96,10 +96,20 @@ const updateUserPassword = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc    Tüm kullanıcıları getir (Sadece Admin yetkisiyle)
+// @route   GET /api/auth/users
+// @access  Private/Admin
+const getAllUsers = asyncHandler(async (req, res) => {
+  // Veritabanındaki tüm kullanıcıları bul ama 'password' alanını getirme (Güvenlik)
+  const users = await User.find({}).select('-password'); 
+  res.json(users);
+});
+
 module.exports = {
   registerUser,
   loginUser,
   getUserProfile,
   updateUserProfile,
   updateUserPassword,
+  getAllUsers,
 };
