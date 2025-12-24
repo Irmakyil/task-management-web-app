@@ -124,7 +124,17 @@ const TaskItem = ({ task, onDelete, onEdit, onToggleStatus }) => {
 
       {/* Kartın Başlık ve Aksiyon İkonları Bölümü */}
       <div className={styles.cardHeader}>
-        <h3>{task.title}</h3> {/* Görev Başlığı */}
+        <div style={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
+          <h3>{task.title}</h3> {/* Görev Başlığı */}
+
+          {/* Admin sayfasında görevi olutşuran kişinin görünmesi */}
+          {isAdmin && task.user && (
+            <div className={styles.ownerHeader}>
+              Created by: <strong>{task.user.name}</strong>
+            </div>
+          )}
+        </div>
+
         <div className={styles.actions}>
           {/* Düzenleme Butonu */}
           <button onClick={handleEdit} className={styles.iconButton}>
@@ -136,6 +146,7 @@ const TaskItem = ({ task, onDelete, onEdit, onToggleStatus }) => {
           </button>
         </div>
       </div>
+
 
       {/* Açıklama ve Tarih/Saat Bilgisi */}
       <div className={styles.cardMiddle}>
@@ -173,6 +184,8 @@ const TaskItem = ({ task, onDelete, onEdit, onToggleStatus }) => {
           </div>
         )}
       </div>
+
+
 
       {/* Kartın Alt Kısım: Kategori Etiketi, Uyarı ve Tamamlama Checkbox'ı */}
       <div className={styles.cardFooter}>
