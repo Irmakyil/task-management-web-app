@@ -68,7 +68,7 @@ This project was developed as a final assignment for the "Software Development I
 Create a `.env` file in the `backend` folder with the following variables:
 
 ```env
-PORT=5000
+PORT=5050
 MONGO_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret_key
 ```
@@ -96,11 +96,11 @@ https://github.com/user-attachments/assets/457f2587-e589-40b6-be0d-c37d882f5120
 
 ## 7. Project Report
 
-For a deep dive into the technical details, diagrams, and screenshots, please refer to the **Report.pdf** file included in this repository.
+For a deep dive into the technical details, diagrams, and screenshots, please refer to the [Report.pdf](Report.pdf) file included in this repository.
 
 ## 8. Authors
 
 | Member | LinkedIn |
 | :--- | :--- |
-| [Irmak Yılmaz](https://github.com/Irmakyil) | <a href="https://www.linkedin.com/in/yilmazirmak/" target="_blank">LinkedIn</a> |
-| [Sena Nur Dülger](https://github.com/senadulger) | <a href="https://www.linkedin.com/in/senadulger/" target="_blank">LinkedIn</a> |
+| [Irmak Yılmaz](https://github.com/Irmakyil) | [<img src="https://upload.wikimedia.org/wikipedia/commons/c/ca/LinkedIn_logo_initials.png" alt="LinkedIn" width="20"/>](https://www.linkedin.com/in/yilmazirmak/) |
+| [Sena Nur Dülger](https://github.com/senadulger) | [<img src="https://upload.wikimedia.org/wikipedia/commons/c/ca/LinkedIn_logo_initials.png" alt="LinkedIn" width="20"/>](https://www.linkedin.com/in/senadulger/) |
